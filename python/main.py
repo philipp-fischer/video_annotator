@@ -1,6 +1,7 @@
 import sys
 from PyQt4 import QtGui, QtCore
 from image_widget import ImageWidget
+from slider_widget import SliderWidget
 from video import Video
 
 class Communicate(QtCore.QObject):
@@ -12,20 +13,19 @@ class Example(QtGui.QWidget):
         super(Example, self).__init__()
 
         self.vid = Video(r'U:\Projects\_smalltests\toystory.mp4')
-        self.vid.compute_averages(3)
+        self.vid.compute_averages(100)
+
+        self.pic = None
+        self.sld = None
+        self.sld2 = None
 
         self.initUI()
-
 
     def initUI(self):
         vbox = QtGui.QVBoxLayout()
 
-        # pic = QtGui.QLabel()
-        # pic.setPixmap(QtGui.QPixmap(r"C:\Users\fischph\Pictures\vms-sorter.png"))
-        # pic.setFrameStyle(1)
-
         self.pic = ImageWidget()
-        self.pic.setImage(self.vid.get_frame(0.5))
+        self.pic.setImage(self.vid.get_frame(0.0))
 
         self.sld = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.sld.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -33,9 +33,12 @@ class Example(QtGui.QWidget):
         self.sld.setValue(100)
         self.sld.valueChanged[int].connect(self.changeValue)
 
+        self.sld2 = SliderWidget()
+        self.sld2.setAverages(self.vid.get_averages())
 
         vbox.addWidget(self.pic)
         vbox.addWidget(self.sld)
+        vbox.addWidget(self.sld2)
 
         self.setLayout(vbox)
         self.setWindowTitle('Video Annotator')

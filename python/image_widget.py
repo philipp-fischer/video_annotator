@@ -12,8 +12,6 @@ class ImageWidget(QtGui.QWidget):
 
     def initUI(self):
         self.setMinimumSize(100, 100)
-        # self.value = 75
-        # self.num = [75, 150, 225, 300, 375, 450, 525, 600, 675]
 
     def setImage(self, image):
         # w = 300

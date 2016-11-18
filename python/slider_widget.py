@@ -7,15 +7,18 @@ class SliderWidget(QtGui.QWidget):
     def __init__(self):
         super(SliderWidget, self).__init__()
 
+        self.averages = None
         self.initUI()
 
     def initUI(self):
-        self.setMinimumSize(100, 30)
-        # self.value = 75
-        # self.num = [75, 150, 225, 300, 375, 450, 525, 600, 675]
+        self.setMinimumSize(100, 50)
+        self.setMaximumHeight(50)
 
     def setAverages(self, averages):
-        self.averages = averages
+        h, w = tuple(averages.shape[:2])
+        self.averages = QtGui.QImage(averages.data, w, h, QtGui.QImage.Format_RGB888)
+        self.averages.ndarray = averages
+
         self.update()
 
     def paintEvent(self, e):
@@ -33,18 +36,10 @@ class SliderWidget(QtGui.QWidget):
         h = size.height()
 
         qp.setPen(QtGui.QColor(0, 0, 0))
-        qp.setBrush(QtGui.QColor(255, 255, 255))
+        qp.setBrush(QtGui.QColor(0, 0, 0))
         qp.drawRect(0, 0, w-1, h-1)
 
-        qp.setPen(QtGui.QPen)
-        qp.setBrush(QtGui.QColor(30, 255, 30))
-        qp.drawRect(0, 0, w - 1, h - 1)
+        if self.averages is not None:
+            qp.drawImage(QtCore.QRectF(1, 1, w - 1, h // 2), self.averages)
 
-
-        if self.curimage is not None:
-            assert(isinstance(self.curimage, QtGui.QImage))
-            offx = (w - self.curimage.width()) // 2
-            offy = (h - self.curimage.height()) // 2
-            qp.drawImage(QtCore.QPointF(offx, offy), self.curimage)
-            # qp.drawImage(QtCore.QRectF(0, 0, w, h), self.curimage)
 
