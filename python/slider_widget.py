@@ -8,6 +8,7 @@ class SliderWidget(QtGui.QWidget):
         super(SliderWidget, self).__init__()
 
         self.averages = None
+        self.ranges = None
         self.initUI()
 
     def initUI(self):
@@ -19,6 +20,10 @@ class SliderWidget(QtGui.QWidget):
         self.averages = QtGui.QImage(averages.data, w, h, QtGui.QImage.Format_RGB888)
         self.averages.ndarray = averages
 
+        self.update()
+
+    def setRanges(self, ranges):
+        self.ranges = ranges
         self.update()
 
     def paintEvent(self, e):
@@ -40,6 +45,33 @@ class SliderWidget(QtGui.QWidget):
         qp.drawRect(0, 0, w-1, h-1)
 
         if self.averages is not None:
-            qp.drawImage(QtCore.QRectF(1, 1, w - 1, h // 2), self.averages)
+            qp.drawImage(QtCore.QRectF(1, 1, w - 2, h // 2), self.averages)
 
+        if self.ranges is not None:
+            qp.setPen(QtCore.Qt.NoPen)
+            qp.setBrush(QtGui.QColor(150, 0, 0))
+
+            assert(isinstance(self.ranges, list))
+
+            for range in self.ranges:
+                k = range[0]
+                if k == 'ad':
+                    qp.setBrush(QtGui.QColor(200, 20, 20))
+                elif k == 'preview':
+                    qp.setBrush(QtGui.QColor(20, 200, 20))
+                else:
+                    qp.setBrush(QtGui.QColor(150, 150, 150))
+
+                rect_from = range[1] * (w - 1)
+                if len(range) > 2:
+                    rect_to = range[2] * (w - 1)
+                    qp.drawRect(rect_from, h // 2 + 1, rect_to-rect_from, h // 2 - 2)
+                else:
+                    y1 = h // 2 + 1
+                    y2 = h - 2
+                    y_mid = (y1+y2) // 2
+                    qp.drawConvexPolygon(QtGui.QPolygon([QtCore.QPoint(rect_from, y1),
+                                          QtCore.QPoint(rect_from, y2),
+                                          QtCore.QPoint(rect_from + 10, y_mid)]))
+                    # qp.drawRect(rect_from, h // 2 + 1, rect_to - rect_from, h // 2 - 2)
 

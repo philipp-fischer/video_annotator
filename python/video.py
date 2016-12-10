@@ -5,18 +5,22 @@ import numpy as np
 
 class Video:
     def __init__(self, filename):
-        self.cap = cv2.VideoCapture(filename)
+        self.filename = filename
+        self.cap = cv2.VideoCapture(self.filename)
         self.framecount = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         self.averages = []
+
+    def get_filename(self):
+        return self.filename
 
     def get_frame(self, idx_or_floatpos):
         if isinstance(idx_or_floatpos, int):
             framenum = idx_or_floatpos
         else:
-            framenum = min(int(self.framecount * idx_or_floatpos), self.framecount - 5)
+            framenum = min(int(self.framecount * idx_or_floatpos), self.framecount - 100)
 
-        # print("Get Frame %d/%d" % (framenum, self.framecount))
+        print("Frame %d/%d" % (framenum, self.framecount))
 
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, framenum)
         success, image = self.cap.read()
