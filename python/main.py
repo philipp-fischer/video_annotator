@@ -50,10 +50,18 @@ class VideoAnnotator(QtGui.QWidget):
         self.ranges = Ranges(update_function=self.sld2.setRanges)
         self.load_or_save_ranges(save=False)
 
+        # A label with a quick introduction
+        man_label = QtGui.QLabel()
+        man_label.setText("Use the slider to navigate (Mouse + keyboard).\n"
+                          + "Q = Start preview range, A = Start ad range, Z = Start ignore range\n"
+                          + "D = End current range, Bksp = remove last element.\n Auto-saves on close.")
+        man_label.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
+
         # Put everything together and show it
         vbox.addWidget(self.pic)
         vbox.addWidget(self.sld)
         vbox.addWidget(self.sld2)
+        vbox.addWidget(man_label)
 
         self.setLayout(vbox)
         self.setWindowTitle('Video Annotator')
@@ -77,6 +85,8 @@ class VideoAnnotator(QtGui.QWidget):
             self.ranges.add_range_start('ad', self.current_position())
         elif e.key() == QtCore.Qt.Key_Q:
             self.ranges.add_range_start('preview', self.current_position())
+        elif e.key() == QtCore.Qt.Key_Z:
+            self.ranges.add_range_start('ignore', self.current_position())
         elif e.key() == QtCore.Qt.Key_D:
             self.ranges.add_range_end(self.current_position())
 
