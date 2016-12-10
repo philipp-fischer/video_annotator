@@ -13,7 +13,7 @@ class VideoAnnotator(QtGui.QWidget):
         super(VideoAnnotator, self).__init__()
 
         self.vid = Video(r'O:\WinTV\Recording\Robin_Hood_20160110_2015.ts')
-        # self.vid.compute_averages(1000)
+        #self.vid.compute_averages(1000)
         self.vid.compute_averages(50)
 
         self.pic = None
@@ -45,13 +45,6 @@ class VideoAnnotator(QtGui.QWidget):
         # (Is also called slider, because it should later take over the role of the conventional slider)
         self.sld2 = SliderWidget()
         self.sld2.setAverages(self.vid.get_averages())
-
-        # sample_ranges = {
-        #     'ads': [[195799/239854, 215379/239854], [10000/239854]],
-        #     'previews': [[1000/239854, 5000/239854]]
-        # }
-        # print(sample_ranges)
-        # self.sld2.setRanges(sample_ranges, )
 
         # The ranges class manages the marked video ranges and sends them to the widget when changed
         self.ranges = Ranges(update_function=self.sld2.setRanges)
