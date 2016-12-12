@@ -77,6 +77,7 @@ class VideoAnnotator(QtGui.QWidget):
     def load_video(self, filename):
         self.vid = Video(filename)
         self.vid.compute_averages(50)
+        #self.vid.compute_averages(1000)
 
         self.pic.setImage(self.vid.get_frame(0.0))
         self.sld2.setAverages(self.vid.get_averages())
@@ -108,6 +109,9 @@ class VideoAnnotator(QtGui.QWidget):
         url = event.mimeData().urls()[0]
         path = str(url.toLocalFile())
         if os.path.isfile(path):
+            # Save old ranges
+            self.load_or_save_ranges(save=True)
+            # Open new video
             self.load_video(path)
 
     def load_or_save_ranges(self, save=False):
