@@ -12,9 +12,7 @@ class VideoAnnotator(QtGui.QWidget):
     def __init__(self):
         super(VideoAnnotator, self).__init__()
 
-        self.vid = Video(r'O:\WinTV\Recording\Robin_Hood_20160110_2015.ts')
-        #self.vid.compute_averages(1000)
-        self.vid.compute_averages(50)
+        self.vid = None
 
         self.pic = None
         self.sld = None
@@ -32,7 +30,6 @@ class VideoAnnotator(QtGui.QWidget):
 
         # Create the widget that displays the video frame
         self.pic = ImageWidget()
-        self.pic.setImage(self.vid.get_frame(0.0))
 
         # A horizontal slider to scroll through the video
         self.sld = QtGui.QSlider(QtCore.Qt.Horizontal)
@@ -44,7 +41,6 @@ class VideoAnnotator(QtGui.QWidget):
         # A special widget that displays the marked ranges and average frame colors
         # (Is also called slider, because it should later take over the role of the conventional slider)
         self.sld2 = SliderWidget()
-        self.sld2.setAverages(self.vid.get_averages())
 
         # The ranges class manages the marked video ranges and sends them to the widget when changed
         self.ranges = Ranges(update_function=self.sld2.setRanges)
@@ -65,6 +61,7 @@ class VideoAnnotator(QtGui.QWidget):
 
         self.setLayout(vbox)
         self.setWindowTitle('Video Annotator')
+        self.setAcceptDrops(True)
         self.show()
 
     def current_position(self, slider_value=None):
@@ -74,7 +71,18 @@ class VideoAnnotator(QtGui.QWidget):
             return slider_value / self.num_positions
 
     def change_slider_value(self, value):
-        self.pic.setImage(self.vid.get_frame(self.current_position(value)))
+        if self.vid is not None:
+            self.pic.setImage(self.vid.get_frame(self.current_position(value)))
+
+    def load_video(self, filename):
+        self.vid = Video(filename)
+        self.vid.compute_averages(50)
+
+        self.pic.setImage(self.vid.get_frame(0.0))
+        self.sld2.setAverages(self.vid.get_averages())
+        self.ranges = Ranges(update_function=self.sld2.setRanges)
+        self.load_or_save_ranges(save=False)
+        self.sld2.setRanges(self.ranges.get_ranges())
 
     def keyPressEvent(self, e):
         if e.key() == QtCore.Qt.Key_Escape:
@@ -90,16 +98,29 @@ class VideoAnnotator(QtGui.QWidget):
         elif e.key() == QtCore.Qt.Key_D:
             self.ranges.add_range_end(self.current_position())
 
-    def load_or_save_ranges(self, save=False):
-        filename = os.path.splitext(self.vid.get_filename())[0] + '_annotation.txt'
-        if save:
-            with open(filename, 'w') as f:
-                json.dump(self.ranges.get_ranges(), f)
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
         else:
-            if os.path.isfile(filename):
-                with open(filename, 'r') as f:
-                    range_data = json.load(f)
-                    self.ranges.set_ranges(range_data)
+            event.ignore()
+
+    def dropEvent(self, event):
+        url = event.mimeData().urls()[0]
+        path = str(url.toLocalFile())
+        if os.path.isfile(path):
+            self.load_video(path)
+
+    def load_or_save_ranges(self, save=False):
+        if self.vid is not None:
+            filename = os.path.splitext(self.vid.get_filename())[0] + '_annotation.txt'
+            if save:
+                with open(filename, 'w') as f:
+                    json.dump(self.ranges.get_ranges(), f)
+            else:
+                if os.path.isfile(filename):
+                    with open(filename, 'r') as f:
+                        range_data = json.load(f)
+                        self.ranges.set_ranges(range_data)
 
 
     def closeEvent(self, e):

@@ -37,9 +37,6 @@ class ImageWidget(QtGui.QWidget):
         qp.end()
 
     def drawWidget(self, qp):
-        #font = QtGui.QFont('Serif', 7, QtGui.QFont.Light)
-        #qp.setFont(font)
-
         size = self.size()
         w = size.width()
         h = size.height()
@@ -54,4 +51,10 @@ class ImageWidget(QtGui.QWidget):
             offy = (h - self.curimage.height()) // 2
             qp.drawImage(QtCore.QPointF(offx, offy), self.curimage)
             # qp.drawImage(QtCore.QRectF(0, 0, w, h), self.curimage)
-
+        else:
+            text = "Drop video here"
+            qp.setFont(QtGui.QFont("Arial", 14))
+            fm = QtGui.QFontMetrics(qp.font())
+            pixelsWide = fm.width(text)
+            qp.setPen(QtGui.QColor(255, 255, 255))
+            qp.drawText((w-pixelsWide)//2, (h+fm.height())//2, text)
